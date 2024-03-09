@@ -11,9 +11,11 @@ const int echo_2 = 25;
 const int trig_3 = 26;
 const int echo_3 = 27;
 
-NewPing leftPing = NewPing(trig_1, echo_1, 400);
-NewPing middlePing = NewPing(trig_2, echo_2, 400);
-NewPing rightPing = NewPing(trig_3, echo_3, 400);
+NewPing sonar[3] = {
+  NewPing(trig_1, echo_1, 400), 
+  NewPing(trig_2, echo_2, 400), 
+  NewPing(trig_3, echo_3, 400)
+};
 
 // Servo Pins
 
