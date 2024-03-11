@@ -80,14 +80,12 @@ void loop() {
         rightServo.write(120 + j);
         sonarValue[2] = sonar[2].ping_cm();
         if(k == 0) k = sonarValue[2];
-        else if (k > sonarValue[2]) k = sonarValue[2];
-        else ;
+        if (k > sonarValue[2]) k = sonarValue[2];
         delay(50);
         leftServo.write(60 - j);
         sonarValue[0] = sonar[0].ping_cm();
-        if(l == 0) l = sonarValue[2];
-        else if (l > sonarValue[2]) l = sonarValue[2];
-        else ;
+        if(l == 0) l = sonarValue[0];
+        if (l > sonarValue[0]) l = sonarValue[0];
       }
 
       if()
