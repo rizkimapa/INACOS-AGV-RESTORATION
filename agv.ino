@@ -41,14 +41,15 @@ L298NX2 motors(EN_A, IN_1, IN_2, EN_B, IN_3, IN_4);
 
 // Other variables that might be used
 
-uint8_t i, j;
-uint8_t k, l = 0;
-uint8_t sonarValue[3];
+int i, j;
+int k, l = 0;
+int sonarValue[3];
 
 /* PROGRAM MAIN BODY */
 
 void setup() {
   Serial.begin(115200);
+  Serial.println("Inisiasi Pin");
   leftServo.attach(servo_L);
   rightServo.attach(servo_R);
   leftServo.write(60);
@@ -59,38 +60,81 @@ void setup() {
 void loop() {
     k = 0;
     l = 0;
+    Serial.println("GO!");
     motors.forward();
   do{
     for(i = 0; i < 3; i++)
     {
       delay(50);
       sonarValue[i] = sonar[i].ping_cm();
-      Serial.print(sonarValue[i]);
       if(sonarValue[i] == 0) sonarValue[i] = 9999;
+      Serial.print("Servo ke-");
+      Serial.print(i+1);
+      Serial.print(": ");
+      Serial.print(sonarValue[i]);
+      Serial.println(" ");
+      Serial.println("Kecepatan motor saat ini: ");
+      Serial.print(motors.getSpeedA());
+      Serial.print(" ");
+      Serial.print(motors.getSpeedB());
+      Serial.println("");
     }
   } while((sonarValue[0] > 200 && sonarValue[1] > 200 && sonarValue[2] > 200));
 
   if(sonarValue[1] <= 200)
   {
+    Serial.println("Jarak sensor tengah ke objek: ");
+    Serial.print(sonarValue[1]);
+    Serial.println("");
     motors.setSpeed(80);
+    Serial.println("Kecepatan motor saat ini: ");
+    Serial.print(motors.getSpeedA());
+    Serial.print(" ");
+    Serial.print(motors.getSpeedB());
+    Serial.println("");
     if(sonarValue[1] <= 100)
     {
+      Serial.println("Objek dibawah 100cm !!!");
       forwardLoop();
-      if (k <= 100)
+      if (k < l)
       {
+        Serial.println("Motor akan berbelok ke Kiri");
         motors.forwardB();
         delay(500);
-        while(sonar(2).ping_cm() != 9999) delay(100);
+        sonarValue[2] = sonar[2].ping_cm();
+        if (sonarValue[2] == 0) sonarValue[2] = 9999;
+        delay(50);
+        while(sonarValue[2] != 9999)
+        {
+          sonarValue[2] = sonar[2].ping_cm();
+          if (sonarValue[2] == 0) sonarValue[2] = 9999;
+          Serial.print("Jarak objek dari sensor kanan: ");
+          Serial.println(sonarValue[2]);
+          delay(100);
+        }
         motors.forward();
+        Serial.println("Motor kembali berjalan lurus");
         motors.setSpeed(255);
       }
 
       else
       {
+        Serial.println("Motor akan berbelok ke kanan");
         motors.forwardA();
         delay(500);
-        while(sonar(0).ping_cm() != 9999) delay(100);
+        sonarValue[0] = sonar[0].ping_cm();
+        if (sonarValue[0] == 0) sonarValue[0] = 9999;
+        delay(50);
+        while(sonarValue[0] != 9999)
+        {
+          sonarValue[0] = sonar[0].ping_cm();
+          if (sonarValue[0] == 0) sonarValue[0] = 9999;
+          Serial.print("Jarak objek dari sensor kiri: ");
+          Serial.println(sonarValue[0]);
+          delay(100);
+        }
         motors.forward();
+        Serial.println("Motor kembali berjalan lurus");
         motors.setSpeed(255);
       }
     }
@@ -114,23 +158,30 @@ void loop() {
 
 void forwardLoop() {
     motors.stop();
-    for(i = 0; i < 5; i++)
+    for(i = 1; i <= 5; i++)
       {
         j = i * 8;
         rightServo.write(120 + j);
         sonarValue[2] = sonar[2].ping_cm();
-        if(k == 0) k = sonarValue[2];
+        if (sonarValue[2] == 0) sonarValue[2] = 9999;
+        if (k == 0) k = sonarValue[2];
         if (k > sonarValue[2]) k = sonarValue[2];
+        Serial.print("Nilai terendah sensor kanan: ");
+        Serial.println(sonarValue[2]);
         delay(50);
         leftServo.write(60 - j);
         sonarValue[0] = sonar[0].ping_cm();
+        if (sonarValue[0] == 0) sonarValue[0] = 9999;
         if(l == 0) l = sonarValue[0];
         if (l > sonarValue[0]) l = sonarValue[0];
+        Serial.print("Nilai terendah sensor kiri: ");
+        Serial.println(sonarValue[0]);
       }
       rightServo.write(120);
       leftServo.write(60);
 
       if(k <= 100 && l <= 100) {
+        Serial.println("AGV akan mundur untuk mencari celah");
         motors.backward();
         delay(1000);
         forwardLoop();
