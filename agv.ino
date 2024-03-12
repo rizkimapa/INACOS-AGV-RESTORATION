@@ -2,6 +2,9 @@
 #include <Servo.h>
 #include <L298NX2.h>
 
+// Function Declaration
+void forwardLoop();
+
 // Ultrasonic Sensor Pins
 
 const int trig_1 = 22;
@@ -51,15 +54,12 @@ void setup() {
   leftServo.write(60);
   rightServo.write(120);
   motors.setSpeed(255);
-  motors.forward();
 }
 
 void loop() {
-  /* Logikanya gimana?
-  1. Defaultnya depan ga detek apa-apa, ultrasonik anglenya semua kedepan, kalau clear maju terus
-  2. Kalau depan detek object 2M, motor melambat, servo gerak dan ultrasonik detek bagian samping
-  3. Kalau 
-  */
+    k = 0;
+    l = 0;
+    motors.forward();
   do{
     for(i = 0; i < 3; i++)
     {
@@ -70,11 +70,51 @@ void loop() {
     }
   } while((sonarValue[0] > 200 && sonarValue[1] > 200 && sonarValue[2] > 200));
 
-  if(sonarValue[1] <= 200) {
+  if(sonarValue[1] <= 200)
+  {
+    motors.setSpeed(80);
     if(sonarValue[1] <= 100)
     {
-      motors.stop();
-      for(i = 0; i < 5; i++)
+      forwardLoop();
+      if (k <= 100)
+      {
+        motors.forwardB();
+        delay(500);
+        while(sonar(2).ping_cm() != 9999) delay(100);
+        motors.forward();
+        motors.setSpeed(255);
+      }
+
+      else
+      {
+        motors.forwardA();
+        delay(500);
+        while(sonar(0).ping_cm() != 9999) delay(100);
+        motors.forward();
+        motors.setSpeed(255);
+      }
+    }
+  }
+
+  else if(sonarValue[0] <= 200 && sonarValue[1] >= 200 && sonarValue[2] >= 200) {
+    motors.setSpeedB(80);
+    while(sonar[0].ping_cm() != 9999) delay(100);
+    motors.setSpeed(255);
+  }
+
+  else if(sonarValue[2] <= 200 && sonarValue[1] >= 100 && sonarValue[0] >= 200) {
+    motors.setSpeedA(80);
+    while(sonar[2].ping_cm() != 9999) delay(100);
+    motors.setSpeed(255);
+  }
+
+  else motors.setSpeed(255);
+  
+}
+
+void forwardLoop() {
+    motors.stop();
+    for(i = 0; i < 5; i++)
       {
         j = i * 8;
         rightServo.write(120 + j);
@@ -87,44 +127,12 @@ void loop() {
         if(l == 0) l = sonarValue[0];
         if (l > sonarValue[0]) l = sonarValue[0];
       }
+      rightServo.write(120);
+      leftServo.write(60);
 
-      if()
-      {
-
+      if(k <= 100 && l <= 100) {
+        motors.backward();
+        delay(1000);
+        forwardLoop();
       }
-      
-      else if(sonarValue[0] <= 100)
-      {
-
-      }
-
-      else if(sonarValue[2] <= 100)
-      {
-        
-      }
-    }
-    motors.setSpeed(80);
-    if(sonarValue[0] <= 200) {
-      motors.setSpeedA(255);
-      delay(50);
-    }
-
-    else {
-      motors.setSpeedB(255);
-      delay(50);
-    }
-
-    motors.setSpeed(80);
-  }
-
-  else if(sonarValue[0] <= 200) {
-    motors.setSpeed(80);
-  }
-
-  else if(sonarValue[2] <= 200) {
-    motors.setSpeed(80);
-  }
-
-  else motors.setSpeed(255);
-  
 }
