@@ -15,9 +15,9 @@ const int trig_3 = 26;
 const int echo_3 = 27;
 
 NewPing sonar[3] = {
-  NewPing(trig_1, echo_1, 300), 
-  NewPing(trig_2, echo_2, 300), 
-  NewPing(trig_3, echo_3, 300)
+  NewPing(trig_1, echo_1, 30), 
+  NewPing(trig_2, echo_2, 30), 
+  NewPing(trig_3, echo_3, 30)
 };
 
 // Servo Pins
@@ -79,9 +79,9 @@ void loop() {
       Serial.print(motors.getSpeedB());
       Serial.println("");
     }
-  } while((sonarValue[0] > 200 && sonarValue[1] > 200 && sonarValue[2] > 200));
+  } while((sonarValue[0] > 20 && sonarValue[1] > 20 && sonarValue[2] > 20));
 
-  if(sonarValue[1] <= 200)
+  if(sonarValue[1] <= 20)
   {
     Serial.println("Jarak sensor tengah ke objek: ");
     Serial.print(sonarValue[1]);
@@ -92,7 +92,7 @@ void loop() {
     Serial.print(" ");
     Serial.print(motors.getSpeedB());
     Serial.println("");
-    if(sonarValue[1] <= 100)
+    if(sonarValue[1] <= 10)
     {
       Serial.println("Objek dibawah 100cm !!!");
       forwardLoop();
@@ -140,15 +140,46 @@ void loop() {
     }
   }
 
-  else if(sonarValue[0] <= 200 && sonarValue[1] >= 200 && sonarValue[2] >= 200) {
-    motors.setSpeedB(80);
-    while(sonar[0].ping_cm() != 9999) delay(100);
+  else if(sonarValue[2] <= 10 && sonarValue[1] >= 10 && sonarValue[0] >= 10) {
+    motors.setSpeedA(80);
+    delay(50);
+    Serial.println("Sensor kanan mendeteksi terlalu dekat!!!"); 
+    sonarValue[2] = sonar[2].ping_cm();
+    Serial.println(sonarValue[2]);
+    if (sonarValue[2] == 0) sonarValue[2] = 9999;
+    Serial.println(sonarValue[2]);
+    while(sonarValue[2] <= 10)
+    {
+      delay(100);
+      sonarValue[2] = sonar[2].ping_cm();
+      if (sonarValue[2] == 0) sonarValue[2] = 9999;
+      Serial.println("Kecepatan motor saat ini: ");
+      Serial.print(motors.getSpeedA());
+      Serial.print(" ");
+      Serial.print(motors.getSpeedB());
+      Serial.println("");
+    }
     motors.setSpeed(255);
   }
 
-  else if(sonarValue[2] <= 200 && sonarValue[1] >= 100 && sonarValue[0] >= 200) {
-    motors.setSpeedA(80);
-    while(sonar[2].ping_cm() != 9999) delay(100);
+  else if(sonarValue[0] <= 10 && sonarValue[1] >= 10 && sonarValue[2] >= 10) {
+    motors.setSpeedB(80);
+    delay(50);
+    Serial.println("Sensor kiri mendeteksi terlalu dekat!!!"); 
+    sonarValue[0] = sonar[0].ping_cm();
+    if (sonarValue[0] == 0) sonarValue[0] = 9999;
+    while(sonarValue[0] <= 10)
+    {
+      delay(100);
+      sonarValue[0] = sonar[0].ping_cm();
+      if (sonarValue[0] == 0) sonarValue[0] = 9999;
+      Serial.println("Kecepatan motor saat ini: ");
+      Serial.print(motors.getSpeedA());
+      Serial.print(" ");
+      Serial.print(motors.getSpeedB());
+      Serial.println("");
+    }
+
     motors.setSpeed(255);
   }
 
@@ -157,6 +188,7 @@ void loop() {
 }
 
 void forwardLoop() {
+    int m, n;
     motors.stop();
     for(i = 1; i <= 5; i++)
       {
@@ -167,7 +199,7 @@ void forwardLoop() {
         if (k == 0) k = sonarValue[2];
         if (k > sonarValue[2]) k = sonarValue[2];
         Serial.print("Nilai terendah sensor kanan: ");
-        Serial.println(sonarValue[2]);
+        Serial.println(k);
         delay(50);
         leftServo.write(60 - j);
         sonarValue[0] = sonar[0].ping_cm();
@@ -175,15 +207,18 @@ void forwardLoop() {
         if(l == 0) l = sonarValue[0];
         if (l > sonarValue[0]) l = sonarValue[0];
         Serial.print("Nilai terendah sensor kiri: ");
-        Serial.println(sonarValue[0]);
+        Serial.println(l);
+        delay(50);
       }
       rightServo.write(120);
       leftServo.write(60);
-
-      if(k <= 100 && l <= 100) {
+      delay(50);
+      if(k <= 10 && l <= 10) {
         Serial.println("AGV akan mundur untuk mencari celah");
         motors.backward();
         delay(1000);
+        k = 0;
+        l = 0;
         forwardLoop();
       }
 }
