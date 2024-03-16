@@ -48,6 +48,7 @@ BTS7960 motor2(EN2, L2_PWM, R2_PWM);
 int i, j;
 int k, l = 0;
 int sonarValue[3];
+uint8_t speed = 255;
 
 /* PROGRAM MAIN BODY */
 
@@ -64,7 +65,7 @@ void loop() {
     k = 0;
     l = 0;
     Serial.println("GO!");
-    motorForward(255);
+    motorForward(speed);
   do{
     for(i = 0; i < 3; i++)
     {
@@ -85,7 +86,8 @@ void loop() {
     Serial.println("Jarak sensor tengah ke objek: ");
     Serial.print(sonarValue[1]);
     Serial.println("");
-    motorForward(80);
+    speed = 100;
+    motorForward(speed);
     if(sonarValue[1] <= 100)
     {
       Serial.println("Objek dibawah 100cm !!!");
