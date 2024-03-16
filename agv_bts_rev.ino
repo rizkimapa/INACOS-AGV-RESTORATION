@@ -4,8 +4,8 @@
 
 // Function Declaration
 void forwardLoop();
-void motorForward(int speed);
-void motorBackward(int speed);
+void motorForward(int a);
+void motorBackward(int a);
 void motorStop();
 
 // Ultrasonic Sensor Pins
@@ -109,7 +109,8 @@ void loop() {
           Serial.println(sonarValue[2]);
           delay(100);
         }
-        motorForward(255);
+        speed = 255;
+        motorForward(speed);
         Serial.println("Motor kembali berjalan lurus");
       }
 
@@ -130,7 +131,8 @@ void loop() {
           Serial.println(sonarValue[0]);
           delay(100);
         }
-        motorForward(255);
+        speed = 255;
+        motorForward(speed);
         Serial.println("Motor kembali berjalan lurus");
       }
     }
@@ -141,7 +143,8 @@ void loop() {
     sonarValue[0] = sonar[0].ping_cm();
     if (sonarValue[0] == 0) sonarValue[0] = 9999;
     while(sonarValue[0] != 9999) delay(100);
-    motorForward(255);
+    speed = 255;
+    motorForward(speed);
   }
 
   else if(sonarValue[2] <= 200 && sonarValue[1] >= 100 && sonarValue[0] >= 200) {
@@ -149,10 +152,15 @@ void loop() {
     sonarValue[2] = sonar[2].ping_cm();
     if (sonarValue[2] == 0) sonarValue[2] = 9999;
     while(sonarValue[2] != 9999) delay(100);
-    motorForward(255);
+    speed = 255;
+    motorForward(speed);
   }
 
-  else motorForward(255);
+  else
+  {
+    speed = 255;
+    motorForward(speed);
+  }
   
 }
 
@@ -185,16 +193,16 @@ void forwardLoop() {
       }
 }
 
-void motorForward(int speed)
+void motorForward(int a)
 {
-  motor1.TurnLeft(speed);
-  motor2.TurnRight(speed);
+  motor1.TurnLeft(a);
+  motor2.TurnRight(a);
 }
 
-void motorBackward(int speed)
+void motorBackward(int a)
 {
-  motor2.TurnLeft(speed);
-  motor1.TurnRight(speed);
+  motor2.TurnLeft(a);
+  motor1.TurnRight(a);
 }
 
 void motorStop()
